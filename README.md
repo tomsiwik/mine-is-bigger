@@ -16,23 +16,27 @@
 
 This repo exists to prove one thing: **Lines of Code (LOC) is a terrible metric** for measuring productivity, progress, or complexity.
 
-With a few simple tricks — the kind that happen _every single day_ in real codebases (especially with coding agents) — we can inflate LOC by tens of thousands of lines without writing a single meaningful line of code.
+With a few simple tricks — the kind that happen _every single day_ in real codebases (especially with coding agents) — we inflated this repo to **325K+ insertions** across 12 commits without writing a single meaningful line of code.
 
 **How I Fooled You:**
 
-| # | Trick | LOC Added | Meaningful Code |
-|---|-------|-----------|-----------------|
-| 1 | Download [schema.org](https://schema.org) vocabulary (a real, commonly-used JSON-LD file) | +47,286 | 0 |
-| 2 | Reformat JSON from 2-space to 4-space indent (a `prettier` config change) | +0 (same lines, bigger diff) | 0 |
-| 3 | Reformat JSON from spaces to tabs (switch formatter) | +47,286 (full file rewrite in diff) | 0 |
-| 4 | Revert the formatting, then redo it (oops, changed my mind) | +94,572 | 0 |
-| 5 | Scaffold an oclif CLI that does literally nothing | +57 (source + tests) | 0 |
-| 6 | Commit `package-lock.json` (as you should) | +13,550 | 0 |
-| 7 | Generate TypeScript types from the JSON schema | ~+15,000 | 0 |
-| 8 | Minify the JSON, then pretty-print it again (CI/CD "fix") | +47,286 | 0 |
-| | **Total** | **~265,000+** | **0** |
+| # | Commit | Trick | Insertions | Meaningful Code |
+|---|--------|-------|------------|-----------------|
+| 1 | `feat: add schema.org vocabulary` | Download [schema.org](https://schema.org) JSON-LD (a real, commonly-used file) | +47,287 | 0 |
+| 2 | `style: configure prettier with 4-space indent` | Reformat from 2-space to 4-space (a config change) | +47,286 | 0 |
+| 3 | `refactor: switch to tabs for consistency` | Switch from spaces to tabs | +47,285 | 0 |
+| 4 | `revert: switch to tabs for consistency` | Oops, revert that | +47,285 | 0 |
+| 5 | `refactor: switch back to tabs after team discussion` | Actually, tabs were right | +47,285 | 0 |
+| 6 | `feat: scaffold CLI application` | oclif CLI that prints "hello world" (39 lines of source) | +14,279 | 0 |
+| 7 | `chore: migrate from npm to pnpm` | Switch package manager | +6,629 | 0 |
+| 8 | `chore: migrate from pnpm to bun` | Switch package manager again | +1,924 | 0 |
+| 9 | `revert: switch back to npm` | Team prefers npm after all | +13,550 | 0 |
+| 10 | `chore: minify schema for bundle size` | Minify JSON to 1 line | +1 | 0 |
+| 11 | `style: prettify schema for readability` | Re-prettify from minified | +47,287 | 0 |
+| 12 | `feat: generate TypeScript types` | Codegen types from the schema we downloaded | +4,943 | 0 |
+| | | **Total git insertions** | **325,041** | **0** |
 
-Zero features. Zero bug fixes. Zero business logic. A quarter million lines of "progress".
+Zero features. Zero bug fixes. Zero business logic. **325K lines of "progress".**
 
 ## The Tricks, Explained
 
@@ -45,31 +49,31 @@ curl -o schema.jsonld https://schema.org/version/latest/schemaorg-current-https.
 git add schema.jsonld && git commit -m "feat: add schema validation"
 ```
 
-### 2-4. Reformat It Back and Forth
+### 2-5. Reformat It Back and Forth
 
-Change your `.prettierrc` from `tabWidth: 2` to `tabWidth: 4`. Or switch from spaces to tabs. Every line in the file changes. Revert it. Change it again. Each round-trip is a full-file diff.
+Change your `.prettierrc` from `tabWidth: 2` to `tabWidth: 4`. Switch from spaces to tabs. Revert it. Switch back. Each round-trip rewrites every line in the file — that's 4 commits x ~47K insertions = **189K insertions** from formatter indecision alone.
 
-This is what happens every time a coding agent "helpfully" reformats a file, or two developers disagree on formatter settings, or someone updates the prettier config.
+This happens every time a coding agent "helpfully" reformats a file, two developers disagree on settings, or someone updates the prettier config.
 
-### 5. Scaffold a CLI That Does Nothing
+### 6. Scaffold a CLI That Does Nothing
 
 ```sh
 npx oclif generate my-cli
 ```
 
-Congratulations, you now have 57 lines of TypeScript source, 13,550 lines of `package-lock.json`, and a CLI that prints "hello world". The scaffolding alone is more code than most bug fixes.
+39 lines of TypeScript source, 13,550 lines of `package-lock.json`, CI workflows, configs, and a CLI that prints "hello world". **14,279 insertions** for zero functionality.
 
-### 6. Commit the Lock File
+### 7-9. Switch Package Managers Back and Forth
 
-Every project should commit their lock file. But that's 13K+ lines of auto-generated dependency resolution. Did anyone "write" those lines?
+Migrate from npm to pnpm (+6,629). Then to bun (+1,924). Then back to npm (+13,550). Three commits, three different lock file formats, **22,103 insertions** of pure churn. The `node_modules` folder didn't change.
 
-### 7. Generate Types from the Schema
+### 10-11. Minify and Re-Prettify
 
-Run a codegen tool on the schema file. You now have ~15,000 lines of TypeScript interfaces. The machine wrote them. Nobody read them. But they count as LOC.
+Minify the schema for "bundle size optimization" (47K lines become 1). Then "fix" readability by pretty-printing it again (+47,287). Two commits, **47,288 insertions**, identical content.
 
-### 8. Minify and Re-Prettify
+### 12. Generate Types from the Schema
 
-Accidentally commit minified JSON (1 line). Then "fix" it by pretty-printing (47K lines). Two commits, ~47K lines of churn, zero change in content.
+Run codegen on the schema file. **4,943 lines** of TypeScript interfaces. The machine wrote them. Nobody will read them. But they count as LOC.
 
 ## Why This Matters
 
@@ -107,7 +111,7 @@ None of this is productivity. It's noise.
 There's nothing to start. That's the point.
 
 ```sh
-# This is all you need to inflate your LOC by 250K+
+# This is all you need to inflate your LOC by 325K+
 curl -o schema.jsonld https://schema.org/version/latest/schemaorg-current-https.jsonld
 npx oclif generate my-useless-cli
 git add -A && git commit -m "feat: initial architecture"
