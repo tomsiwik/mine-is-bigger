@@ -34,69 +34,13 @@ With a few simple tricks — the kind that happen _every single day_ in real cod
 | 10 | `chore: minify schema for bundle size` | Minify JSON to 1 line | +1 | 0 |
 | 11 | `style: prettify schema for readability` | Re-prettify from minified | +47,287 | 0 |
 | 12 | `feat: generate TypeScript types` | Codegen types from the schema we downloaded | +4,943 | 0 |
-| 13 | `refactor: move CLI to project root` | `git mv` everything to a new folder structure | +12 | 0 |
+| 13 | `refactor: move CLI to project root` | `git mv` everything to a new folder structure — only +12 because git detected renames. A coding agent would `rm` + `writeFile` instead, producing **+14,276** insertions for the same result | +12 | 0 |
 | 14 | `feat: add schema validation commands` | LLM-style verbose code: JSDoc everything, 80-char lines, barrel files, one-function-per-file utils | +3,266 | 0 |
 | | | **Total git insertions** | **328,461** | **0** |
 
 Zero features. Zero bug fixes. Zero business logic. **328K lines of "progress".**
 
 The 3,266 lines of "real code" in commit 14? That's 23 TypeScript files containing ~47 lines of actual logic buried under verbose JSDoc comments, constants-for-constants, barrel re-exports, and single-function utility files. A coding agent wrote every line — and it looks _exactly_ like production code.
-
-## The Tricks, Explained
-
-### 1. Vendor a Large Schema File
-
-schema.org publishes their entire vocabulary as a single JSON-LD file. It's 47,287 lines and 1.5 MB. Download it, commit it, and you just "wrote" 47K lines of code.
-
-```sh
-curl -o schema.jsonld https://schema.org/version/latest/schemaorg-current-https.jsonld
-git add schema.jsonld && git commit -m "feat: add schema validation"
-```
-
-### 2-5. Reformat It Back and Forth
-
-Change your `.prettierrc` from `tabWidth: 2` to `tabWidth: 4`. Switch from spaces to tabs. Revert it. Switch back. Each round-trip rewrites every line in the file — that's 4 commits x ~47K insertions = **189K insertions** from formatter indecision alone.
-
-This happens every time a coding agent "helpfully" reformats a file, two developers disagree on settings, or someone updates the prettier config.
-
-### 6. Scaffold a CLI That Does Nothing
-
-```sh
-npx oclif generate my-cli
-```
-
-39 lines of TypeScript source, 13,550 lines of `package-lock.json`, CI workflows, configs, and a CLI that prints "hello world". **14,279 insertions** for zero functionality.
-
-### 7-9. Switch Package Managers Back and Forth
-
-Migrate from npm to pnpm (+6,629). Then to bun (+1,924). Then back to npm (+13,550). Three commits, three different lock file formats, **22,103 insertions** of pure churn. The `node_modules` folder didn't change.
-
-### 10-11. Minify and Re-Prettify
-
-Minify the schema for "bundle size optimization" (47K lines become 1). Then "fix" readability by pretty-printing it again (+47,287). Two commits, **47,288 insertions**, identical content.
-
-### 12. Generate Types from the Schema
-
-Run codegen on the schema file. **4,943 lines** of TypeScript interfaces. The machine wrote them. Nobody will read them. But they count as LOC.
-
-### 13. Move Files Around
-
-`git mv` the CLI from a subfolder to the project root. Same code, new paths, every file shows as changed. Coding agents do this constantly when "reorganizing" project structure.
-
-### 14. LLM-Inflated "Production" Code
-
-Let a coding agent write "clean, well-documented" TypeScript. You get:
-
-- **Verbose JSDoc on everything** — 8-line doc blocks for `const DEFAULT_PUNCTUATION = '!'`
-- **80-character line width** — forces multiline destructuring, imports, and function calls
-- **Barrel files** — `index.ts` files that re-export each type individually on its own line
-- **One function per file** — `format-bytes.ts`, `format-duration.ts`, `format-number.ts`, `truncate-string.ts` (each ~100 lines for a 3-line function)
-- **Constants for constants** — `BYTES_PER_KB`, `BYTES_PER_MB`, `BYTES_PER_GB`, `LABEL_BYTES`, `LABEL_KB`, `LABEL_MB`, `LABEL_GB` (7 constants to avoid the number 1024)
-- **Flat import lists** — each import on its own line with trailing comma
-- **Comment-per-line** — `// Add the greeting prefix` above `components.push(DEFAULT_GREETING_PREFIX)`
-- **Redundant interfaces** — `ValidationError`, `ValidationWarning`, `ValidationOptions`, `ValidationResult` fully typed with JSDoc for a validator that checks 2 properties
-
-**3,266 lines. ~47 lines of logic. The rest is ceremony.**
 
 ## Why This Matters
 
